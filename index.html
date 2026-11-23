@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EL-Hub</title>
+<meta name="theme-color" content="#0d0920">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="EL-Hub">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="ikon-180.png">
+<link rel="icon" href="ikon-192.png">
+<style>
+html,body{margin:0;height:100%;background:#0d0920;font-family:system-ui,sans-serif;color:#f4f1ff}
+#app{position:fixed;inset:0;width:100%;height:100%;border:0;background:#0d0920}
+#msg{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;font-weight:700}
+</style></head>
+<body>
+<div id="msg">Membuka EL-Hub...</div>
+<iframe id="app" title="EL-Hub" allow="geolocation *; camera *; clipboard-write *"></iframe>
+<script>
+// Link web app EL-Hub (yang berakhiran /exec). Dari Apps Script: Deploy > Manage deployments.
+const ELHUB_URL = 'https://script.google.com/macros/s/AKfycby630PwrIFOrxWSFEAsbXsSXvyhDRXWs6I1CqHJuZiiMMJ-5G6W_NkCy084mIZaHL9C0g/exec';
+
+const q = new URLSearchParams(location.search);
+let dev = q.get('d');
+try { if (!/^D[0-9a-f]{24}$/.test(dev || '')) dev = localStorage.getItem('elhub_dev'); } catch (e) {}
+if (!/^D[0-9a-f]{24}$/.test(dev || '')) dev = 'D' + Array.from(crypto.getRandomValues(new Uint8Array(12)), b => b.toString(16).padStart(2, '0')).join('');
+try { localStorage.setItem('elhub_dev', dev); } catch (e) {}
+if (q.get('d') !== dev) history.replaceState(null, '', location.pathname + '?d=' + dev);
+
+if (!/^https:\/\/script\.google\.com\/.+\/exec$/.test(ELHUB_URL)) {
+  document.getElementById('msg').innerHTML = '<div>Link EL-Hub belum diisi di file index.html.</div>';
+} else {
+  const f = document.getElementById('app');
+  f.onload = () => { document.getElementById('msg').style.display = 'none'; };
+  const base = location.origin + location.pathname.replace(/[^/]*$/, '');
+  f.src = ELHUB_URL + '?d=' + dev + '&b=' + encodeURIComponent(base);
+  // jaga EL-Hub tetap hangat supaya selalu cepat: ping tiap 4 menit selama halaman terbuka
+  const ping = () => { if (!document.hidden) fetch(ELHUB_URL + '?ping=1', { mode: 'no-cors', cache: 'no-store' }).catch(() => {}); };
+  setInterval(ping, 240000);
+}
+</script>
+</body></html>
