@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Invoice · Elroi Badminton Hall</title>
+<meta name="theme-color" content="#0d0920">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=3">
+<link rel="apple-touch-icon" href="ikon-180.png?v=3">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;background:#0d0920;color:#f4f1ff;font-family:Archivo,Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+body{min-height:100vh;background:radial-gradient(900px 500px at 85% -10%,rgba(200,241,53,.16),transparent 60%),radial-gradient(700px 500px at -10% 110%,rgba(106,77,208,.35),transparent 60%),#0d0920;padding:18px 14px 40px}
+.wrap{max-width:560px;margin:0 auto}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(145deg,#6a4dd0,#3b2685);border:2px solid #C8F135;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:21px;color:#C8F135}
+.top b{display:block;font-size:15px}.top span{font-size:12px;color:#b7afe0}
+.card{border-radius:22px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);padding:16px 18px;margin-bottom:12px}
+.k{font-size:11px;font-weight:800;letter-spacing:.1em;color:#C8F135;margin-bottom:6px}
+.no{font-size:12.5px;color:#b7afe0}
+.big{font-size:30px;font-weight:900;line-height:1.1;margin:6px 0 2px}
+.badge{display:inline-block;padding:5px 12px;border-radius:999px;font-weight:900;font-size:12px;letter-spacing:.05em}
+.lunas{background:#C8F135;color:#1a1530}.belum{background:#ffb547;color:#2a1a00}.batal{background:#ff5d7a;color:#fff}
+.row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.1);font-size:14px}
+.row:last-child{border-bottom:0}.row span:first-child{color:#c9c2ea}.row b{text-align:right}
+.tot{font-size:17px}.tot b{color:#C8F135}
+.qr{display:block;width:min(340px,100%);margin:10px auto;border-radius:16px;background:#fff;padding:10px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:50px;border:0;border-radius:15px;font-weight:900;font-size:15px;cursor:pointer;color:#140f2b;background:linear-gradient(180deg,#d6f65a,#9DD10F);text-decoration:none;margin-top:10px;font-family:inherit}
+.btn.g{background:rgba(255,255,255,.08);color:#f4f1ff;border:1px solid rgba(255,255,255,.2)}
+.rek{font-size:21px;font-weight:900;letter-spacing:.04em;margin:4px 0}
+.mut{font-size:12.5px;color:#b7afe0;line-height:1.55}
+.tos{font-size:12px;color:#b7afe0;line-height:1.6}
+#msg{text-align:center;padding:60px 20px;color:#c9c2ea;font-weight:700}
+@media print{
+ html,body{background:#fff!important;color:#1a1530!important}body{padding:0;background:#fff!important}
+ .card{background:#fff!important;border:1px solid #ddd!important;color:#1a1530!important;break-inside:avoid}
+ .k{color:#5438AD!important}.mut,.tos,.no,.row span:first-child{color:#555!important}.tot b{color:#1a1530!important}
+ .noprint{display:none!important}.logo{background:#5438AD!important;color:#C8F135!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ .badge{-webkit-print-color-adjust:exact;print-color-adjust:exact}.lunas{background:#C8F135!important;color:#1a1530!important}.belum{background:#ffb547!important}
+ .qr{border:1px solid #ddd}
+}
+</style></head>
+<body><div class="wrap" id="app"><div id="msg">Membuka invoice...</div></div>
+<script>
+// Link web app EL-Hub (sama dengan index.html). Halaman ini hanya membaca invoice lewat kode acak, tanpa login.
+const ELHUB_URL = 'https://script.google.com/macros/s/AKfycby630PwrIFOrxWSFEAsbXsSXvyhDRXWs6I1CqHJuZiiMMJ-5G6W_NkCy084mIZaHL9C0g/exec';
+const app = document.getElementById('app');
+const t = new URLSearchParams(location.search).get('t') || '';
+const rp = n => 'Rp' + String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+function h(tag, attrs, ...kids) { const e = document.createElement(tag); for (const k in (attrs || {})) { if (k === 'class') e.className = attrs[k]; else if (k.startsWith('on')) e.addEventListener(k.slice(2), attrs[k]); else e.setAttribute(k, attrs[k]); } kids.flat().forEach(c => { if (c !== null && c !== undefined && c !== false) e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); }); return e; }
+const row = (a, b, cls) => h('div', { class: 'row ' + (cls || '') }, h('span', {}, a), h('b', {}, b));
+function fail(m) { app.replaceChildren(h('div', { id: 'msg' }, m)); }
+function copy(txt, btn) { const done = () => { const o = btn.textContent; btn.textContent = 'Tersalin'; setTimeout(() => btn.textContent = o, 1500); }; try { navigator.clipboard.writeText(txt).then(done, done); } catch (e) { done(); } }
+function draw(v) {
+  const lunas = v.status === 'Lunas', batal = v.status === 'Dibatalkan', qris = v.metode === 'QRIS';
+  const kids = [];
+  kids.push(h('div', { class: 'top' }, h('div', { class: 'logo' }, 'R'), h('div', {}, h('b', {}, v.hall.nama || 'Elroi Badminton Hall'), h('span', {}, v.hall.alamat || ''))));
+  kids.push(h('div', { class: 'card' }, h('div', { class: 'k' }, 'INVOICE'), h('div', { class: 'no' }, v.no + ' · Kode booking ' + v.kode),
+    h('div', { class: 'big' }, rp(v.total)), h('span', { class: 'badge ' + (batal ? 'batal' : lunas ? 'lunas' : 'belum') }, v.status.toUpperCase())));
+  const rin = [row('Pelanggan', v.nama + (v.hp ? ' (' + v.hp + ')' : '')), row('Tanggal', v.hari), row('Jam', v.mulai + ' – ' + v.selesai + ' (' + v.durasi + ' jam)'), row('EL-Court', String(v.court)), row('Sewa EL-Court', rp(v.sewa))];
+  if (v.rental) rin.push(row('Sewa raket', rp(v.rental)));
+  rin.push(row('Total', rp(v.total), 'tot'), row('Dibayar', rp(lunas ? v.total : 0)), row('Sisa pembayaran', rp(lunas || batal ? 0 : v.total)));
+  kids.push(h('div', { class: 'card' }, h('div', { class: 'k' }, 'RINCIAN'), rin));
+  if (!lunas && !batal) {
+    const pay = h('div', { class: 'card' }, h('div', { class: 'k' }, 'CARA BAYAR'));
+    if (qris) {
+      pay.append(h('div', { class: 'mut' }, 'Simpan gambar QRIS di bawah, lalu buka aplikasi bank atau e-wallet dan pilih scan dari galeri. Masukkan nominal ' + rp(v.total) + '. Kami tidak menerima tunai.'));
+      const img = h('img', { class: 'qr', alt: 'QRIS BRI', src: 'qris.png' }); img.onerror = () => { img.replaceWith(h('div', { class: 'mut', style: 'margin-top:8px' }, 'Kode QRIS belum tampil di halaman ini. Minta kode QRIS ke El-Min.')); };
+      const dl = h('a', { class: 'btn g noprint', href: 'qris.png', download: 'QRIS-Elroi.png' }, 'Simpan gambar QRIS'); img.addEventListener('error', () => dl.remove()); pay.append(img, dl);
+    } else {
+      pay.append(h('div', { class: 'mut' }, 'Transfer ' + rp(v.total) + ' ke ' + v.bank.transfer + ':'), h('div', { class: 'rek' }, v.bank.rekening), v.bank.atasNama ? h('div', { class: 'mut' }, 'a.n. ' + v.bank.atasNama) : null);
+      const b = h('button', { class: 'btn noprint', onclick: () => copy(String(v.bank.rekening).replace(/\D/g, ''), b) }, 'Salin nomor rekening'); pay.append(b);
+      pay.append(h('div', { class: 'mut', style: 'margin-top:8px' }, 'Kirim bukti transfer ke El-Min lewat WhatsApp. Tidak ada DP: booking dianggap lunas setelah pembayaran diterima.'));
+    }
+    kids.push(pay);
+  }
+  const dlb = h('button', { class: 'btn noprint', onclick: () => unduh(dlb) }, 'Unduh invoice (PDF)'); kids.push(dlb);
+  kids.push(h('div', { class: 'card', style: 'margin-top:14px' }, h('div', { class: 'k' }, 'SYARAT DAN KETENTUAN'), h('div', { class: 'tos' }, (v.tos || []).map((x, i) => h('div', {}, (i + 1) + '. ' + x)))));
+  kids.push(h('div', { class: 'mut', style: 'text-align:center;margin-top:10px' }, 'Instagram ' + v.sosial.ig + ' · TikTok ' + v.sosial.tiktok));
+  app.replaceChildren(...kids);
+  document.title = 'Invoice ' + v.no;
+}
+async function unduh(btn) {
+  const o = btn.textContent; btn.disabled = true; btn.textContent = 'Menyiapkan PDF...';
+  try {
+    const r = await fetch(ELHUB_URL + '?inv=' + t + '&pdf=1', { cache: 'no-store' }), j = await r.json();
+    if (!j.ok) throw new Error('x');
+    const bin = atob(j.b64), arr = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    const url = URL.createObjectURL(new Blob([arr], { type: 'application/pdf' })), a = document.createElement('a');
+    a.href = url; a.download = j.nama; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000);
+    btn.textContent = 'Invoice terunduh';
+  } catch (e) { btn.textContent = o; window.print(); }  // cadangan: cetak dari browser bila PDF belum bisa dibuat
+  setTimeout(() => { btn.disabled = false; btn.textContent = o; }, 2500);
+}
+async function load() {
+  if (!/^[a-f0-9]{20}$/.test(t)) { fail('Tautan invoice tidak valid.'); return; }
+  try {
+    const r = await fetch(ELHUB_URL + '?inv=' + t, { cache: 'no-store' });
+    const j = await r.json();
+    if (!j.ok) { fail('Invoice tidak ditemukan. Minta tautan baru ke El-Min.'); return; }
+    draw(j.inv);
+  } catch (e) { fail('Invoice belum bisa dibuka. Cek koneksi lalu muat ulang.'); }
+}
+load();
+document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });
+</script></body></html>
