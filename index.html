@@ -43,7 +43,7 @@ if (!/^https:\/\/script\.google\.com\/.+\/exec$/.test(ELHUB_URL)) {
   const f = document.getElementById('app');
   const tutup = () => { const e = document.getElementById('sp0'); if (!e || e.classList.contains('off')) return; e.classList.add('off'); setTimeout(() => { e.style.display = 'none'; }, 450); };
   window.addEventListener('message', (ev) => { if (ev.data === 'elhub-ready') tutup(); }); // aplikasi memberi tanda saat halaman pertama (login atau beranda) sudah siap
-  setTimeout(tutup, 15000); // cadangan bila tanda tidak datang
+  setTimeout(tutup, 8000); // cadangan bila tanda tidak datang
   const base = location.origin + location.pathname.replace(/[^/]*$/, '');
   f.src = ELHUB_URL + '?d=' + dev + '&b=' + encodeURIComponent(base);
   // jaga EL-Hub tetap hangat supaya selalu cepat: ping tiap 4 menit selama halaman terbuka
