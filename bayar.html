@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cara bayar · Elroi Badminton Hall</title>
+<meta name="theme-color" content="#0d0920">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=3">
+<link rel="apple-touch-icon" href="ikon-180.png?v=3">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;background:#0d0920;color:#f4f1ff;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+.k,.big,.badge,.btn,.rek,.kop .no2{font-family:Archivo,Inter,system-ui,sans-serif}
+body{min-height:100vh;background:radial-gradient(900px 500px at 85% -10%,rgba(200,241,53,.16),transparent 60%),radial-gradient(700px 500px at -10% 110%,rgba(106,77,208,.35),transparent 60%),#0d0920;padding:18px 14px 40px}
+.wrap{max-width:560px;margin:0 auto}
+.kop{padding:6px 4px 4px;margin-bottom:14px}
+.kop img{display:block;width:min(320px,82%);height:auto;margin:0 auto}
+.kop .al{font-size:11.5px;color:#b7afe0;margin-top:6px;line-height:1.4;text-align:center}
+.kop .ln{height:4px;border-radius:3px;background:linear-gradient(90deg,transparent,#C8F135,transparent);margin-top:12px;opacity:.8}
+.card{border-radius:22px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);padding:16px 18px;margin-bottom:12px}
+.k{font-size:11px;font-weight:800;letter-spacing:.1em;color:#C8F135;margin-bottom:6px}
+.no{font-size:12.5px;color:#b7afe0}
+.big{font-size:30px;font-weight:900;line-height:1.1;margin:6px 0 2px}
+.badge{display:inline-block;padding:5px 12px;border-radius:999px;font-weight:900;font-size:12px;letter-spacing:.05em}
+.lunas{background:#C8F135;color:#1a1530}.belum{background:#ffb547;color:#2a1a00}.batal{background:#ff5d7a;color:#fff}
+.row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.1);font-size:14px}
+.row:last-child{border-bottom:0}.row span:first-child{color:#c9c2ea}.row b{text-align:right}
+.tot{font-size:17px}.tot b{color:#C8F135}
+.qr{display:block;width:min(340px,100%);margin:10px auto;border-radius:16px;background:#fff;padding:10px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:50px;border:0;border-radius:15px;font-weight:900;font-size:15px;cursor:pointer;color:#140f2b;background:linear-gradient(180deg,#d6f65a,#9DD10F);text-decoration:none;margin-top:10px;font-family:inherit}
+.btn.g{background:rgba(255,255,255,.08);color:#f4f1ff;border:1px solid rgba(255,255,255,.2)}
+.rek{font-size:21px;font-weight:900;letter-spacing:.04em;margin:4px 0}
+.mut{font-size:12.5px;color:#b7afe0;line-height:1.55}
+.tos{font-size:12px;color:#b7afe0;line-height:1.6}
+#msg{text-align:center;padding:60px 20px;color:#c9c2ea;font-weight:700}
+@media print{
+ html,body{background:#fff!important;color:#1a1530!important}body{padding:0;background:#fff!important}
+ .card{background:#fff!important;border:1px solid #ddd!important;color:#1a1530!important;break-inside:avoid}
+ .k{color:#5438AD!important}.mut,.tos,.no,.row span:first-child{color:#555!important}.tot b{color:#1a1530!important}
+ .noprint{display:none!important}.kop{background:#0d0920!important;border-radius:14px;padding:10px!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ .badge{-webkit-print-color-adjust:exact;print-color-adjust:exact}.lunas{background:#C8F135!important;color:#1a1530!important}.belum{background:#ffb547!important}
+ .qr{border:1px solid #ddd}
+}
+</style></head>
+<body><div class="wrap" id="app"><div id="msg">Membuka cara bayar...</div></div>
+<script>
+// Halaman cara bayar (tanpa invoice): nominal dari tautan, rekening/QRIS dari server. Tanpa login, tanpa data pelanggan.
+const ELHUB_URL = 'https://script.google.com/macros/s/AKfycby630PwrIFOrxWSFEAsbXsSXvyhDRXWs6I1CqHJuZiiMMJ-5G6W_NkCy084mIZaHL9C0g/exec';
+const app = document.getElementById('app');
+const n = Number(new URLSearchParams(location.search).get('n') || 0);
+const rp = x => 'Rp' + String(Math.round(Number(x) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+function h(tag, attrs, ...kids) { const e = document.createElement(tag); for (const k in (attrs || {})) { if (k === 'class') e.className = attrs[k]; else if (k.startsWith('on')) e.addEventListener(k.slice(2), attrs[k]); else e.setAttribute(k, attrs[k]); } for (const c of kids) if (c != null) e.append(c); return e; }
+function fail(m) { app.replaceChildren(h('div', { id: 'msg' }, m)); }
+function copy(txt, btn) { const done = () => { const o = btn.textContent; btn.textContent = 'Tersalin'; setTimeout(() => btn.textContent = o, 1500); }; try { navigator.clipboard.writeText(txt).then(done, done); } catch (e) { done(); } }
+async function load() {
+  if (!(n >= 1000 && n <= 100000000)) { fail('Tautan tidak valid. Minta tautan baru ke El-Min.'); return; }
+  try {
+    const j = await (await fetch(ELHUB_URL + '?pay=1', { cache: 'no-store' })).json();
+    if (!j.ok) throw 0;
+    const qris = n <= Number(j.batasQris || 500000), kids = [];
+    kids.push(h('div', { class: 'kop' }, h('img', { src: 'logo-elroi-gelap.png', alt: 'Elroi Badminton Hall' }), h('div', { class: 'ln' })));
+    kids.push(h('div', { class: 'card' }, h('div', { class: 'k' }, 'CARA BAYAR'), h('div', { class: 'no' }, 'Total yang dibayar'), h('div', { class: 'big' }, rp(n)), h('span', { class: 'badge belum' }, qris ? 'QRIS BRI' : 'TRANSFER BRI')));
+    const pay = h('div', { class: 'card' });
+    if (qris) {
+      pay.append(h('div', { class: 'mut' }, 'Simpan gambar QRIS di bawah, lalu buka aplikasi bank atau e-wallet dan pilih scan dari galeri. Masukkan nominal ' + rp(n) + '. Kami tidak menerima tunai.'));
+      const img = h('img', { class: 'qr', alt: 'QRIS BRI', src: 'qris.png' }); img.onerror = () => { img.replaceWith(h('div', { class: 'mut', style: 'margin-top:8px' }, 'Kode QRIS belum tampil. Minta kode QRIS ke El-Min.')); };
+      const dl = h('a', { class: 'btn g', href: 'qris.png', download: 'QRIS-Elroi.png' }, 'Simpan gambar QRIS'); img.addEventListener('error', () => dl.remove()); pay.append(img, dl);
+    } else {
+      pay.append(h('div', { class: 'mut' }, 'Transfer ' + rp(n) + ' ke ' + j.bank.transfer + ':'), h('div', { class: 'rek' }, j.bank.rekening), j.bank.atasNama ? h('div', { class: 'mut' }, 'a.n. ' + j.bank.atasNama) : null);
+      const b = h('button', { class: 'btn', onclick: () => copy(String(j.bank.rekening).replace(/\D/g, ''), b) }, 'Salin nomor rekening'); pay.append(b);
+    }
+    pay.append(h('div', { class: 'mut', style: 'margin-top:12px' }, 'Setelah membayar, kirim bukti pembayaran ke El-Min lewat WhatsApp. Jadwal dipastikan setelah pembayaran kami terima. Tidak ada DP.'));
+    kids.push(pay);
+    kids.push(h('div', { class: 'mut', style: 'text-align:center;margin-top:10px' }, 'Instagram: ' + j.sosial.ig + ' · TikTok: ' + j.sosial.tiktok));
+    app.replaceChildren(...kids);
+  } catch (e) { fail('Halaman belum bisa dibuka. Cek koneksi lalu muat ulang.'); }
+}
+load();
+</script></body></html>
