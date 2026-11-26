@@ -41,8 +41,8 @@ body{min-height:100vh;background:radial-gradient(900px 500px at 85% -10%,rgba(20
  .badge{-webkit-print-color-adjust:exact;print-color-adjust:exact}.lunas{background:#C8F135!important;color:#1a1530!important}.belum{background:#ffb547!important}
  .qr{border:1px solid #ddd}
 }
-.sp{display:inline-block;width:18px;height:18px;border:3px solid rgba(20,15,43,.25);border-top-color:#140f2b;border-radius:50%;animation:spn .7s linear infinite;vertical-align:middle}@keyframes spn{to{transform:rotate(360deg)}}</style></head>
-<body><div class="wrap" id="app"><div id="msg">Membuka invoice...</div></div>
+.sp{display:inline-block;width:18px;height:18px;border:3px solid rgba(20,15,43,.25);border-top-color:#140f2b;border-radius:50%;animation:spn .7s linear infinite;vertical-align:middle}@keyframes spn{to{transform:rotate(360deg)}}#msg .bar{width:180px;height:6px;border-radius:3px;background:rgba(255,255,255,.12);margin:0 auto;overflow:hidden}#msg .bar i{display:block;width:40%;height:100%;border-radius:3px;background:#C8F135;animation:brg 1.1s ease-in-out infinite}@keyframes brg{0%{margin-left:-40%}100%{margin-left:100%}}</style></head>
+<body><div class="wrap" id="app"><div id="msg"><div class="bar" role="progressbar" aria-label="Memuat"><i></i></div></div></div>
 <script>
 // Link web app EL-Hub (sama dengan index.html). Halaman ini hanya membaca invoice lewat kode acak, tanpa login.
 const ELHUB_URL = 'https://script.google.com/macros/s/AKfycby630PwrIFOrxWSFEAsbXsSXvyhDRXWs6I1CqHJuZiiMMJ-5G6W_NkCy084mIZaHL9C0g/exec';
@@ -59,12 +59,16 @@ function draw(v) {
   const lunas = v.status === 'Lunas', batal = v.status === 'Dibatalkan', qris = v.metode === 'QRIS';
   const kids = [];
   kids.push(h('div', { class: 'kop' }, h('img', { src: 'logo-elroi-gelap.png', alt: 'Elroi Badminton Hall' }), h('div', { class: 'al' }, (v.hall.alamat || '') + ' · Instagram: ' + (v.sosial.ig || '') + ' · TikTok: ' + (v.sosial.tiktok || '')), h('div', { class: 'ln' })));
-  kids.push(h('div', { class: 'card' }, h('div', { class: 'k' }, 'INVOICE'), h('div', { class: 'no' }, v.no + ' · Kode booking ' + v.kode),
+  kids.push(h('div', { class: 'card' }, h('div', { class: 'k' }, 'INVOICE'), h('div', { class: 'no' }, v.no + ' · Kode ' + (v.member ? 'member ' : 'booking ') + v.kode),
     h('div', { class: 'big' }, rp(v.total)), h('span', { class: 'badge ' + (batal ? 'batal' : lunas ? 'lunas' : 'belum') }, v.status.toUpperCase())));
-  const rin = [row('Pelanggan', v.nama + (v.hp ? ' (' + v.hp + ')' : '')), row('Tanggal', v.hari), row('Jam', v.mulai + ' – ' + v.selesai + ' (' + v.durasi + ' jam)'), row('EL-Court', String(v.court)), row('Sewa EL-Court', rp(v.sewa))];
+  const mb = v.member;
+  const rin = mb
+    ? [row('Pelanggan', v.nama + (v.hp ? ' (' + v.hp + ')' : '')), row('Paket', mb.paket + ' · ' + mb.masa), row('Jadwal main', mb.hariMain + ' · ' + mb.jam)].concat(mb.rows.map(x => row(x.ket, rp(x.jumlah))))
+    : [row('Pelanggan', v.nama + (v.hp ? ' (' + v.hp + ')' : '')), row('Tanggal', v.hari), row('Jam', v.mulai + ' – ' + v.selesai + ' (' + v.durasi + ' jam)'), row('EL-Court', String(v.court)), row('Sewa EL-Court', rp(v.sewa))];
   if (v.rental) rin.push(row('Sewa raket', rp(v.rental)));
   rin.push(row('Total', rp(v.total), 'tot'), row('Dibayar', rp(lunas ? v.total : 0)), row('Sisa pembayaran', rp(lunas || batal ? 0 : v.total)));
   kids.push(h('div', { class: 'card' }, h('div', { class: 'k' }, 'RINCIAN'), rin));
+  if (mb) kids.push(h('div', { class: 'card' }, h('div', { class: 'k' }, 'JADWAL SESI (' + mb.sesi.length + ' tanggal)'), h('div', { style: 'display:grid;grid-template-columns:repeat(2,1fr);gap:4px 12px;font-size:13px;line-height:1.35' }, mb.sesi.map(x => h('div', {}, x.no + '. ' + x.tgl + (x.court && x.court !== mb.courts ? ' (' + x.court + ')' : '')))), (!lunas && !batal && mb.batas) ? h('div', { class: 'mut', style: 'margin-top:8px' }, 'Jadwal ditahan sampai sesi pertama (' + mb.batas.replace(/ \d{4}$/, '') + '). Mohon selesaikan pembayaran sebelum itu.') : null));
   if (!lunas && !batal) {
     const pay = h('div', { class: 'card' }, h('div', { class: 'k' }, 'CARA BAYAR'));
     if (qris) {
@@ -93,7 +97,7 @@ async function gambarInvoice(v) {
   const logo = await muatGambar('logo-elroi.png'), qr = (!lunas && !batal && qris) ? await muatGambar('qris.png') : null;
   const W = 1240, M = 80, IW = W - 2 * M, UNGU = '#523BAA', GELAP = '#1a1530', ABU = '#6b6585', LIME = '#C8F135';
   const AR = '"Archivo","Inter",Arial,sans-serif', IN = '"Inter","Helvetica Neue",Arial,sans-serif';
-  const cv = document.createElement('canvas'); cv.width = W; cv.height = 2600; const c = cv.getContext('2d');
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = 3600; const c = cv.getContext('2d');
   c.fillStyle = '#fff'; c.fillRect(0, 0, W, cv.height);
   const T = (t, x, y, f, col, al) => { c.font = f; c.fillStyle = col; c.textAlign = al || 'left'; c.textBaseline = 'alphabetic'; c.fillText(t, x, y); };
   const L = (t, x, y, col) => { c.font = '800 19px ' + AR; c.fillStyle = col || UNGU; c.textAlign = 'left'; if ('letterSpacing' in c) c.letterSpacing = '3px'; c.fillText(t, x, y); if ('letterSpacing' in c) c.letterSpacing = '0px'; };
@@ -111,16 +115,23 @@ async function gambarInvoice(v) {
   T((v.hall.alamat || '') + '  ·  Instagram: ' + (v.sosial.ig || '') + '  ·  TikTok: ' + (v.sosial.tiktok || ''), M, y, '400 20px ' + IN, ABU); y += 60;
   // pelanggan dan jadwal
   L('DITAGIHKAN KEPADA', M, y); L('JADWAL MAIN', W / 2 + 20, y); y += 46;
-  T(v.nama, M, y, '800 36px ' + AR, GELAP); T(v.hari, W / 2 + 20, y, '800 30px ' + AR, GELAP); y += 40;
-  T(v.hp ? 'WhatsApp ' + v.hp : '', M, y, '400 23px ' + IN, ABU); T(v.mulai + ' – ' + v.selesai + ' (' + v.durasi + ' jam)', W / 2 + 20, y, '600 25px ' + IN, GELAP); y += 36;
-  T('Kode booking ' + v.kode, M, y, '400 23px ' + IN, ABU); T('EL-Court ' + v.court, W / 2 + 20, y, '600 25px ' + IN, GELAP); y += 56;
+  const mb = v.member;
+  T(v.nama, M, y, '800 36px ' + AR, GELAP); T(mb ? mb.paket + ' · ' + mb.masa.split(' · ')[0] : v.hari, W / 2 + 20, y, mb ? '800 28px ' + AR : '800 30px ' + AR, GELAP); y += 40;
+  T(v.hp ? 'WhatsApp ' + v.hp : '', M, y, '400 23px ' + IN, ABU); T(mb ? mb.hariMain + ', ' + mb.jam : v.mulai + ' – ' + v.selesai + ' (' + v.durasi + ' jam)', W / 2 + 20, y, '600 25px ' + IN, GELAP); y += 36;
+  T((mb ? 'Kode member ' : 'Kode booking ') + v.kode, M, y, '400 23px ' + IN, ABU); T(mb ? mb.courts : 'EL-Court ' + v.court, W / 2 + 20, y, '600 25px ' + IN, GELAP); y += 56;
   // tabel
   rr(M, y, IW, 56, 12, UNGU); T('Rincian', M + 24, y + 37, '700 23px ' + AR, '#fff'); T('Jumlah', W - M - 24, y + 37, '700 23px ' + AR, '#fff', 'right'); y += 56;
-  const baris = [['Sewa EL-Court ' + v.court + ' (' + v.durasi + ' jam)', rp(v.sewa)]]; if (v.rental) baris.push(['Sewa raket', rp(v.rental)]);
-  for (const [a, b] of baris) { T(a, M + 24, y + 40, '500 25px ' + IN, GELAP); T(b, W - M - 24, y + 40, '600 25px ' + IN, GELAP, 'right'); y += 58; c.fillStyle = '#e6e2f4'; c.fillRect(M, y - 1, IW, 2); }
-  rr(M, y + 6, IW, 66, 12, '#f1f9d0'); T('Total', M + 24, y + 50, '800 30px ' + AR, GELAP); T(rp(v.total), W - M - 24, y + 50, '900 32px ' + AR, GELAP, 'right'); y += 84;
-  T('Dibayar (' + (qris ? 'QRIS' : 'Transfer') + ' BRI)', M + 24, y + 36, '400 24px ' + IN, ABU); T(rp(lunas ? v.total : 0), W - M - 24, y + 36, '600 24px ' + IN, GELAP, 'right'); y += 48;
-  T('Sisa pembayaran', M + 24, y + 36, '400 24px ' + IN, ABU); T(rp(lunas || batal ? 0 : v.total), W - M - 24, y + 36, '700 24px ' + IN, GELAP, 'right'); y += 72;
+  const baris = mb ? mb.rows.map(x => [x.ket, rp(x.jumlah)]) : [['Sewa EL-Court ' + v.court + ' (' + v.durasi + ' jam)', rp(v.sewa)]]; if (v.rental) baris.push(['Sewa raket', rp(v.rental)]);
+  for (const [a, b] of baris) { T(a, M + 24, y + 34, '500 22px ' + IN, GELAP); T(b, W - M - 24, y + 34, '600 22px ' + IN, GELAP, 'right'); y += 48; c.fillStyle = '#e6e2f4'; c.fillRect(M, y - 1, IW, 2); }
+  rr(M, y + 6, IW, 56, 12, '#f1f9d0'); T('Total', M + 24, y + 43, '800 27px ' + AR, GELAP); T(rp(v.total), W - M - 24, y + 43, '900 29px ' + AR, GELAP, 'right'); y += 72;
+  T('Dibayar (' + (qris ? 'QRIS' : 'Transfer') + ' BRI)', M + 24, y + 36, '400 22px ' + IN, ABU); T(rp(lunas ? v.total : 0), W - M - 24, y + 36, '600 22px ' + IN, GELAP, 'right'); y += 40;
+  T('Sisa pembayaran', M + 24, y + 36, '400 22px ' + IN, ABU); T(rp(lunas || batal ? 0 : v.total), W - M - 24, y + 36, '700 22px ' + IN, GELAP, 'right'); y += 76;
+  if (mb) {
+    y += 4; L('JADWAL SESI (' + mb.sesi.length + ' TANGGAL)', M, y); y += 38;
+    const adaBeda = mb.sesi.some(x => x.court && x.court !== mb.courts), kol = adaBeda ? 2 : 3, lebar = IW / kol;
+    mb.sesi.forEach((x, i) => { const cx = M + (i % kol) * lebar, cy = y + Math.floor(i / kol) * 36; T(x.no + '. ' + x.tgl, cx, cy, '600 21px ' + IN, GELAP); if (adaBeda) T(x.court, cx + lebar - 24, cy, '400 18px ' + IN, ABU, 'right'); });
+    y += Math.ceil(mb.sesi.length / kol) * 36 + 12;
+  }
   // cap status (lurus, tidak miring) + keterangan
   {
     const wib = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).replace(/\./g, ':');

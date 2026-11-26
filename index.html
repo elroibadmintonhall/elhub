@@ -47,6 +47,9 @@ if (!/^https:\/\/script\.google\.com\/.+\/exec$/.test(ELHUB_URL)) {
   setTimeout(() => { const m = document.getElementById('msg'); if (m && !document.getElementById('sp0').offsetParent) { /* splash sudah hilang; tidak ada yang perlu ditambah */ } }, 26000);
   const base = location.origin + location.pathname.replace(/[^/]*$/, '');
   const cs = getComputedStyle(document.getElementById('probe')), sat = Math.round(parseFloat(cs.paddingTop) || 0), sab = Math.round(parseFloat(cs.paddingBottom) || 0); // area aman HP, diteruskan ke aplikasi
+  // Android sebagai aplikasi (layar penuh) sering melaporkan 0 padahal bilah status (jam, sinyal) menutupi bagian atas: beri jarak cadangan supaya tidak menempel
+  const mode = (q) => { try { return matchMedia('(display-mode: ' + q + ')').matches; } catch (e) { return false; } };
+  if (sat === 0 && navigator.maxTouchPoints > 0 && Math.min(screen.width, screen.height) < 900 && (mode('standalone') || mode('fullscreen') || mode('minimal-ui') || navigator.standalone)) sat = 30;
   f.src = ELHUB_URL + '?d=' + dev + '&b=' + encodeURIComponent(base) + '&sat=' + sat + '&sab=' + sab;
   // jaga EL-Hub tetap hangat supaya selalu cepat: ping tiap 4 menit selama halaman terbuka
   const ping = () => { if (!document.hidden) fetch(ELHUB_URL + '?ping=1', { mode: 'no-cors', cache: 'no-store' }).catch(() => {}); };

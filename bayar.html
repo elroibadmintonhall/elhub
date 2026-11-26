@@ -41,8 +41,8 @@ body{min-height:100vh;background:radial-gradient(900px 500px at 85% -10%,rgba(20
  .badge{-webkit-print-color-adjust:exact;print-color-adjust:exact}.lunas{background:#C8F135!important;color:#1a1530!important}.belum{background:#ffb547!important}
  .qr{border:1px solid #ddd}
 }
-</style></head>
-<body><div class="wrap" id="app"><div id="msg">Membuka cara bayar...</div></div>
+#msg .bar{width:180px;height:6px;border-radius:3px;background:rgba(255,255,255,.12);margin:0 auto;overflow:hidden}#msg .bar i{display:block;width:40%;height:100%;border-radius:3px;background:#C8F135;animation:brg 1.1s ease-in-out infinite}@keyframes brg{0%{margin-left:-40%}100%{margin-left:100%}}</style></head>
+<body><div class="wrap" id="app"><div id="msg"><div class="bar" role="progressbar" aria-label="Memuat"><i></i></div></div></div>
 <script>
 // Halaman cara bayar (tanpa invoice): nominal dari tautan, rekening/QRIS dari server. Tanpa login, tanpa data pelanggan.
 const ELHUB_URL = 'https://script.google.com/macros/s/AKfycby630PwrIFOrxWSFEAsbXsSXvyhDRXWs6I1CqHJuZiiMMJ-5G6W_NkCy084mIZaHL9C0g/exec';
