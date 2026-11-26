@@ -50,8 +50,9 @@ if (!/^https:\/\/script\.google\.com\/.+\/exec$/.test(ELHUB_URL)) {
   let sat = Math.round(parseFloat(cs.paddingTop) || 0); const sab = Math.round(parseFloat(cs.paddingBottom) || 0); // area aman HP, diteruskan ke aplikasi
   // Android sebagai aplikasi (layar penuh) sering melaporkan 0 padahal bilah status (jam, sinyal) menutupi bagian atas: beri jarak cadangan supaya tidak menempel
   const mode = (q) => { try { return matchMedia('(display-mode: ' + q + ')').matches; } catch (e) { return false; } };
-  if (sat === 0 && navigator.maxTouchPoints > 0 && Math.min(screen.width, screen.height) < 900 && (mode('standalone') || mode('fullscreen') || mode('minimal-ui') || navigator.standalone)) sat = 30;
-  f.src = ELHUB_URL + '?d=' + dev + '&b=' + encodeURIComponent(base) + '&sat=' + sat + '&sab=' + sab;
+  let sabx = sab;
+  if (navigator.maxTouchPoints > 0 && Math.min(screen.width, screen.height) < 900 && (mode('standalone') || mode('fullscreen') || mode('minimal-ui') || navigator.standalone)) { const mh = Math.max(screen.width, screen.height), ios = /iPhone/.test(navigator.userAgent); if (sat === 0) sat = ios ? (mh >= 852 ? 59 : (mh >= 812 ? 47 : 20)) : 28; if (sab === 0 && ios && mh >= 812) sabx = 34; }
+  f.src = ELHUB_URL + '?d=' + dev + '&b=' + encodeURIComponent(base) + '&sat=' + sat + '&sab=' + sabx;
   // jaga EL-Hub tetap hangat supaya selalu cepat: ping tiap 4 menit selama halaman terbuka
   const ping = () => { if (!document.hidden) fetch(ELHUB_URL + '?ping=1', { mode: 'no-cors', cache: 'no-store' }).catch(() => {}); };
   setInterval(ping, 240000);
