@@ -16,7 +16,7 @@
 html,body{margin:0;height:100%;position:fixed;inset:0;width:100%;overflow:hidden;overscroll-behavior:none;touch-action:pan-x pan-y;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;background:#0d0920;font-family:system-ui,sans-serif;color:#f4f1ff}
 #app{position:fixed;inset:0;width:100%;height:100%;border:0;background:#0d0920}#probe{position:fixed;left:0;top:0;visibility:hidden;pointer-events:none;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
 #msg{z-index:10001;pointer-events:none;position:fixed;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;font-weight:700}
-#sp0{pointer-events:none;position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 70% 10%,rgba(200,241,53,.22),transparent 45%),radial-gradient(circle at 15% 90%,rgba(122,92,224,.5),transparent 50%),#0d0920;transition:opacity .4s ease}#sp0.off{opacity:0;pointer-events:none}
+#sp0{pointer-events:none;position:fixed;inset:0 0 -80px 0;z-index:10000;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 70% 10%,rgba(200,241,53,.22),transparent 45%),radial-gradient(circle at 15% 90%,rgba(122,92,224,.5),transparent 50%),#0d0920;transition:opacity .4s ease}#sp0.off{opacity:0;pointer-events:none}
 #sp0 .c{display:flex;flex-direction:column;align-items:center;gap:6px;color:#f4f1ff;font-family:Inter,system-ui,sans-serif}
 #sp0 img{height:150px;width:auto;animation:fl 2.6s ease-in-out infinite;filter:drop-shadow(0 16px 18px rgba(0,0,0,.5))}
 #sp0 b{font-family:Archivo,Inter,system-ui,sans-serif;font-weight:900;font-size:28px;letter-spacing:.02em;margin-top:6px}#sp0 span{font-size:13px;color:#c9c2ea}
@@ -46,7 +46,8 @@ if (!/^https:\/\/script\.google\.com\/.+\/exec$/.test(ELHUB_URL)) {
   setTimeout(() => { tutup(); }, 25000); // cadangan bila tanda tidak datang; setelah itu pesan dari aplikasi sendiri (atau tombol di bawah) yang tampil
   setTimeout(() => { const m = document.getElementById('msg'); if (m && !document.getElementById('sp0').offsetParent) { /* splash sudah hilang; tidak ada yang perlu ditambah */ } }, 26000);
   const base = location.origin + location.pathname.replace(/[^/]*$/, '');
-  const cs = getComputedStyle(document.getElementById('probe')), sat = Math.round(parseFloat(cs.paddingTop) || 0), sab = Math.round(parseFloat(cs.paddingBottom) || 0); // area aman HP, diteruskan ke aplikasi
+  const cs = getComputedStyle(document.getElementById('probe'));
+  let sat = Math.round(parseFloat(cs.paddingTop) || 0); const sab = Math.round(parseFloat(cs.paddingBottom) || 0); // area aman HP, diteruskan ke aplikasi
   // Android sebagai aplikasi (layar penuh) sering melaporkan 0 padahal bilah status (jam, sinyal) menutupi bagian atas: beri jarak cadangan supaya tidak menempel
   const mode = (q) => { try { return matchMedia('(display-mode: ' + q + ')').matches; } catch (e) { return false; } };
   if (sat === 0 && navigator.maxTouchPoints > 0 && Math.min(screen.width, screen.height) < 900 && (mode('standalone') || mode('fullscreen') || mode('minimal-ui') || navigator.standalone)) sat = 30;
